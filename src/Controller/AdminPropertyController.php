@@ -88,6 +88,8 @@ class AdminPropertyController extends AbstractController
 
         $manager->flush();
 
+        $this->addFlash('success', 'Bien supprimé avec succes');
+
         return $this->redirectToRoute('admin_property_index');
     }
 }
