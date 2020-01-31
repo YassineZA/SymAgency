@@ -3,8 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Property;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Entity\PropertySearch;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @method Property|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,11 +20,21 @@ class PropertyRepository extends ServiceEntityRepository
         parent::__construct($registry, Property::class);
     }
 
-    public function findAllVisible() {
-        return $this->findVisibleQuery()
-            ->getQuery()
-            ->getResult()
-        ;
+    public function findAllVisibleQuery(PropertySearch $search) {
+        $query =  $this->findVisibleQuery();
+
+        if ($search->getMaxPrice()) {
+            $query = $query->andWhere('p.price <= :maxprice')
+                           ->setParameter('maxprice', $search->getMaxPrice());
+        }
+
+        if ($search->getMinSurface()) {
+            $query = $query->andWhere('p.surface >= :minsurface')
+                           ->setParameter('minsurface', $search->getMinSurface());
+        }
+
+        return $query->getQuery();       
+        
     }
 
     public function findLatest() {
